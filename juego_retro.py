@@ -5,10 +5,12 @@ import json
 import os
 import sys
 import math
+import pygame_menu.events
+import pygame_menu.widgets
 
 # --- Configuración Básica ---
-WIDTH, HEIGHT = 400, 600
-LANES = 4
+WIDTH, HEIGHT = 1000, 600
+LANES = 6
 LANE_WIDTH = WIDTH // LANES
 FPS = 60
 LIVES = 3
@@ -431,19 +433,40 @@ def game_loop(surface):
         clock.tick(FPS)
 
     # Menú de fin de juego
-    menu_over = pygame_menu.Menu('Fin del Juego', WIDTH, HEIGHT, theme=pygame_menu.themes.THEME_DARK)
-    menu_over.add.label(f"Puntuación Final: {score}", font_size=30)
-    
+    # Tema personalizado para menú de fin de juego
+    menu_over_theme = pygame_menu.themes.THEME_DARK.copy()
+    menu_over_theme.background_color = (15, 10, 25)  # Fondo aún más oscuro
+    menu_over_theme.title_font = pygame_menu.font.FONT_8BIT
+    menu_over_theme.title_font_size = 48
+    menu_over_theme.title_background_color = (120, 0, 20)  # Rojo oscuro
+    menu_over_theme.title_font_color = (255, 255, 255)
+    menu_over_theme.widget_font_size = 26
+    menu_over_theme.widget_font_color = (255, 255, 255)
+    menu_over_theme.widget_selection_effect = pygame_menu.widgets.LeftArrowSelection(arrow_size=(15, 20))
+    menu_over_theme.widget_background_color = (40, 20, 40)
+    menu_over_theme.widget_alignment = pygame_menu.locals.ALIGN_CENTER
+
+    # Crear menú de fin de juego con el nuevo tema
+    menu_over = pygame_menu.Menu('Fin del Juego', WIDTH, HEIGHT, theme=menu_over_theme)
+
+    # Mostrar puntuación final
+    menu_over.add.label(f"Puntuación Final: {score}", font_size=32)
+    menu_over.add.vertical_margin(15)
+
+    # Mostrar mejores puntuaciones si existen
     scores = load_scores()
     if scores:
-        menu_over.add.label("Mejores Puntuaciones:", font_size=24)
+        menu_over.add.label("🏆 Mejores Puntuaciones:", font_size=26)
         for i, s in enumerate(scores[:3]):
-            menu_over.add.label(f"{i+1}. {s}", font_size=20)
-    
-    menu_over.add.button('Reiniciar', lambda: game_loop(surface), font_size=24)
-    menu_over.add.button('Lobby', pygame_menu.events.EXIT, font_size=24)
-    menu_over.center_content()
+            menu_over.add.label(f"{i+1}. {s}", font_size=22)
+        menu_over.add.vertical_margin(20)
+
+    # Botones
+    menu_over.add.button('🔁 Reiniciar', lambda: game_loop(surface))
+    menu_over.add.button('🏠 Lobby', pygame_menu.events.EXIT)
+
     menu_over.mainloop(surface)
+
 
 def main():
     pygame.init()
@@ -467,22 +490,45 @@ def main():
 
     # Configurar menú principal
     menu_theme = pygame_menu.themes.THEME_DARK.copy()
-    menu_theme.title_font_size = 40
-    menu_theme.widget_font_size = 24
-    
-    menu = pygame_menu.Menu('Carreras Retro', WIDTH, HEIGHT, theme=menu_theme)
-    
-    # Mostrar mejores puntuaciones
+    menu_theme.background_color = (10, 10, 30)  # Fondo más oscuro
+    menu_theme.title_font = pygame_menu.font.FONT_8BIT  # Fuente estilo retro
+    menu_theme.title_font_size = 50
+    menu_theme.widget_font_size = 28
+    menu_theme.title_background_color = (50, 20, 100)  # Fondo del título
+    menu_theme.title_font_color = (255, 255, 0)  # Título amarillo
+    menu_theme.widget_font_color = (255, 255, 255)  # Texto blanco
+    menu_theme.widget_selection_effect = pygame_menu.widgets.LeftArrowSelection(arrow_size=(15, 20))  # Selector visual retro
+    menu_theme.widget_background_color = (30, 30, 60)  # Fondo de widgets
+    menu_theme.widget_alignment = pygame_menu.locals.ALIGN_CENTER  # Centrar todos los widgets por defecto
+
+    # Crear menú principal
+    menu = pygame_menu.Menu(
+        title='Carreras Retro',
+        width=WIDTH,
+        height=HEIGHT,
+        theme=menu_theme
+    )
+
+    # Mostrar mejores puntuaciones alineadas a la derecha
     scores = load_scores()
     if scores:
-        menu.add.label("Récords:", font_size=20)
+        menu.add.label("Récords:", font_size=20, align=pygame_menu.locals.ALIGN_LEFT)
         for i, s in enumerate(scores[:3]):
-            menu.add.label(f"{i+1}. {s}", font_size=18)
+            menu.add.label(f"{i+1}. {s}", font_size=18, align=pygame_menu.locals.ALIGN_LEFT)
         menu.add.vertical_margin(20)
-    
-    menu.add.button('Jugar', lambda: game_loop(surface))
-    menu.add.button('Salir', pygame_menu.events.EXIT)
-    menu.center_content()
+
+    # Función para crear botones centrados
+    def crear_botones(texto, accion, color_fondo, color_texto):
+        boton = menu.add.button(texto, accion, font_color=color_texto, align=pygame_menu.locals.ALIGN_CENTER)
+        boton.set_padding((10, 20, 10, 20))
+        boton.set_max_width(300)
+        boton.set_background_color(color_fondo)
+
+    # Añadir botones centrados
+    crear_botones("🚗1 Jugador", lambda: game_loop(surface), (20, 40, 20), (255, 255, 0))
+    # crear_botones("👾2 Jugadores", lambda: game_loop(surface), (30,60,20), 255,255,200)
+    crear_botones("Salir", pygame_menu.events.EXIT, (80, 20, 20), (255, 255, 255))
+
     menu.mainloop(surface)
     pygame.quit()
 
