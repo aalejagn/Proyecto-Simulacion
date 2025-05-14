@@ -7,6 +7,7 @@ import sys
 import math
 import pygame_menu.events
 import pygame_menu.widgets
+from skines import SkinManager
 
 # --- Configuración Básica ---
 WIDTH, HEIGHT = 1000, 600
@@ -470,24 +471,34 @@ def game_loop(surface):
 
 def main():
     pygame.init()
+    # Inicializar gestor de skins
+    skin_manager = SkinManager(WIDTH, HEIGHT)
     surface = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Juego Retro de Carritos")
 
-    # Cargar imágenes
+    # No necesitas declarar global aquí si las variables ya están declaradas arriba
     global PLAYER_IMG, ENEMY_IMG, OBSTACLE_IMG
+
+    # Inicializar el gestor de skins
+    skin_manager = SkinManager(WIDTH, HEIGHT)
+    
+    # Cargar imágenes
     try:
-        PLAYER_IMG = pygame.image.load(os.path.join("IMG_FOLDER", 'carro1.png')).convert_alpha()
+        # Usar get_current_game_skin() que devuelve una superficie pygame
+        PLAYER_IMG = skin_manager.get_current_game_skin()
         ENEMY_IMG = pygame.image.load(os.path.join("IMG_FOLDER", 'carro2.png')).convert_alpha()
         OBSTACLE_IMG = pygame.image.load(os.path.join("IMG_FOLDER", 'obstaculo.png')).convert_alpha()
-    except:
-        # Imágenes de respaldo
+    except Exception as e:
+        print(f"Error cargando imágenes: {e}")
+        # Crear imágenes de respaldo
         PLAYER_IMG = pygame.Surface((50, 80), pygame.SRCALPHA)
         pygame.draw.rect(PLAYER_IMG, (0, 0, 255), (10, 0, 30, 80))
         ENEMY_IMG = pygame.Surface((50, 80), pygame.SRCALPHA)
         pygame.draw.rect(ENEMY_IMG, (255, 0, 0), (10, 0, 30, 80))
         OBSTACLE_IMG = pygame.Surface((50, 80), pygame.SRCALPHA)
         pygame.draw.rect(OBSTACLE_IMG, (100, 100, 100), (10, 0, 30, 80))
-
+        
+        
     # Configurar menú principal
     menu_theme = pygame_menu.themes.THEME_DARK.copy()
     menu_theme.background_color = (10, 10, 30)  # Fondo más oscuro
@@ -506,9 +517,34 @@ def main():
         title='Carreras Retro',
         width=WIDTH,
         height=HEIGHT,
-        theme=menu_theme
+        theme=menu_theme    
     )
+        
+    def show_skin_menu(menu, surface, skin_manager):
+        menu.disable()  # desactiva principal
+        # callback para reactivar
+        def volver():
+            global PLAYER_IMG
+            PLAYER_IMG = pygame.transform.scale(
+                skin_manager.get_current_game_skin(),
+                (LANE_WIDTH-20, 60)
+            )
+            menu.enable()
+        skin_menu = skin_manager.create_skin_selection_menu(surface, volver)
+        skin_menu.mainloop(surface)
 
+
+    # Añadir botón de skins en la esquina inferior derecha
+    skin_btn = menu.add.button(
+        "🎨 Skins",
+        show_skin_menu,
+        menu,
+        surface,
+        skin_manager,
+        align=pygame_menu.locals.ALIGN_CENTER
+    ).set_position(WIDTH-70, HEIGHT-70) # Esquina inferior derecha
+    
+    
     # Mostrar mejores puntuaciones alineadas a la derecha
     scores = load_scores()
     if scores:
