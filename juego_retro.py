@@ -521,16 +521,26 @@ def main():
     )
         
     def show_skin_menu(menu, surface, skin_manager):
-        menu.disable()  # desactiva principal
-        # callback para reactivar
-        def volver():
+        # desactiva el menú principal
+        menu.disable()
+
+        # callback de seleccionar: actualiza PLAYER_IMG
+        def on_select():
             global PLAYER_IMG
             PLAYER_IMG = pygame.transform.scale(
                 skin_manager.get_current_game_skin(),
-                (LANE_WIDTH-20, 60)
+                (LANE_WIDTH - 20, 60)
             )
+            
+                # callback de regresar: sólo reactiva el menú principal
+        def volver():
             menu.enable()
-        skin_menu = skin_manager.create_skin_selection_menu(surface, volver)
+
+        skin_menu = skin_manager.create_skin_selection_menu(
+            surface,
+            on_return=volver,
+            on_select=on_select
+        )
         skin_menu.mainloop(surface)
 
 

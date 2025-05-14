@@ -88,8 +88,10 @@ class SkinManager:
         """Retrocede a la skin anterior"""
         if self.available_skins:
             self.current_index = (self.current_index - 1) % len(self.available_skins)
+            
+            
 
-    def create_skin_selection_menu(self, surface, on_return):
+    def create_skin_selection_menu(self, surface, on_return, on_select=None):
         """
         Construye y devuelve un pygame_menu.Menu para elegir skins.
         on_return: función a llamar al pulsar 'Regresar'.
@@ -124,7 +126,13 @@ class SkinManager:
         # Estado
         menu.add.label(lambda: f"Skin {self.current_index+1}/{len(self.available_skins)}", font_size=20)
         # Acciones
-        menu.add.button('Seleccionar', pygame_menu.events.EXIT)
+        # — Seleccionar: ejecuta callback, pero NO hace BACK/EXIT
+        if on_select:
+            menu.add.button('Seleccionar', on_select)
+        else:
+            # placeholder, no hace nada
+            menu.add.button('Seleccionar', lambda: None)
+        # — Regresar: cierra el submenú y vuelve al principal
         menu.add.button('Regresar', on_return)
         return menu
 
