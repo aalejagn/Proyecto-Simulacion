@@ -10,6 +10,7 @@ import pygame_menu.events
 import pygame_menu.widgets
 from skines_obtenidas import SkinManager
 from tienda import StoreManager
+from canciones import ManejoMusica
 
 # --- Configuración Básica ---
 WIDTH, HEIGHT = 1000, 600
@@ -241,7 +242,8 @@ class ScoreDisplay:
         pygame.draw.rect(surface, (100, 100, 100), (WIDTH - 120, 60, 100, 10))
         pygame.draw.rect(surface, (0, 255, 0), (WIDTH - 120, 60, int(100 * progress), 10))
 
-def game_loop(surface, store_manager):
+def game_loop(surface, store_manager, music_manager):
+    music_manager.play_game('game_music.mp3') #todo: Manejo de cancion para el arranque del juego
     # TODO: Iniciar el bucle principal del juego
     clock = pygame.time.Clock()
     lane_manager = LaneManager()
@@ -282,6 +284,7 @@ def game_loop(surface, store_manager):
                 elif event.key == pygame.K_ESCAPE:
                     if paused:
                         store_manager.add_points(score)
+                        music_manager.play_game('menu_music.mp3') # todo: Manejo de cancion
                         return
                     paused = True
 
@@ -301,6 +304,7 @@ def game_loop(surface, store_manager):
             keys = pygame.key.get_pressed()
             if keys[pygame.K_r]:
                 store_manager.add_points(score)
+                music_manager.play_game('menu_music.mp3')
                 return game_loop(surface, store_manager)
             clock.tick(FPS)
             continue
@@ -340,6 +344,8 @@ def game_loop(surface, store_manager):
                 if rival_hit:
                     rival_hit.reset(player.lane)
                 if obstacle_hit:
+                    print("Reproduciendo Explosión")
+                    music_manager.play_sound('explosion_sound.mp3')
                     obstacle_hit.reset(player.lane)
                 if lives == 0:
                     scores = load_scores()
@@ -359,7 +365,7 @@ def game_loop(surface, store_manager):
         score_display.draw(surface)
         pygame.display.flip()
         clock.tick(FPS)
-
+    music_manager.play_game('game_over.mp3')
     # TODO: Configurar menú de fin de juego
     menu_over_theme = pygame_menu.themes.THEME_DARK.copy()
     menu_over_theme.background_color = (15, 10, 25)
@@ -382,7 +388,7 @@ def game_loop(surface, store_manager):
         for i, s in enumerate(scores[:3]):
             menu_over.add.label(f"{i+1}. {s}", font_size=22)
         menu_over.add.vertical_margin(20)
-    menu_over.add.button('🔁 Reiniciar', lambda: game_loop(surface, store_manager))
+    menu_over.add.button('🔁 Reiniciar', lambda: game_loop(surface, store_manager,music_manager))
     menu_over.add.button('🏠 Lobby', pygame_menu.events.EXIT)
     menu_over.mainloop(surface)
 
@@ -396,6 +402,7 @@ def main():
     # TODO: Inicializar los gestores de skins y tienda
     skin_manager = SkinManager(WIDTH, HEIGHT)
     store_manager = StoreManager(WIDTH, HEIGHT, skin_manager)
+    music_manager = ManejoMusica() # todo: AGREGACION DE MUSICA
 
     # TODO: Cargar imágenes para el jugador, enemigos y obstáculos
     try:
@@ -431,9 +438,11 @@ def main():
         height=HEIGHT,
         theme=menu_theme
     )
+    music_manager.play_game('menu_music.mp3') # TODO: MANEJO DE MUSICA INICIO
 
     # TODO: Definir función para mostrar el menú de selección de skins
     def show_skin_menu(menu, surface, skin_manager):
+        music_manager.play_game('menu_music.mp3') #TODO: MANEJO DE MUSICA EN LAS SKIN
         menu.disable()
         def on_select():
             global PLAYER_IMG
@@ -443,6 +452,7 @@ def main():
             )
         def volver():
             menu.enable()
+            music_manager.play_game('menu_music.mp3') #todo: Manejo de musica inicio
         skin_menu = skin_manager.create_skin_selection_menu(
             surface,
             on_return=volver,
@@ -452,9 +462,12 @@ def main():
 
     # TODO: Definir función para mostrar el menú de la tienda
     def show_store_menu(menu, surface, store_manager):
+        music_manager.play_game('menu_music.mp3') # todo: manejo de musica
         menu.disable()
         def on_return():
             menu.enable()
+            music_manager.play_game('menu_music.mp3')
+            #todo: manejo de musica en la tienda
         try:
             # TODO: Intentar crear y mostrar el menú de la tienda
             store_menu = store_manager.create_store_menu(surface, on_return)
@@ -500,12 +513,14 @@ def main():
         boton.set_max_width(300)
         boton.set_background_color(color_fondo)
 
-    crear_botones("🚗1 Jugador", lambda: game_loop(surface, store_manager), (20, 40, 20), (255, 255, 0))
+    crear_botones("🚗1 Jugador", lambda: game_loop(surface, store_manager, music_manager), (20, 40, 20), (255, 255, 0)) #todo: agregacion de musica
     crear_botones("Salir", pygame_menu.events.EXIT, (80, 20, 20), (255, 255, 255))
 
     # TODO: Iniciar el bucle principal del menú
     menu.mainloop(surface)
+    music_manager.limpieza()
     pygame.quit()
+
 
 if __name__ == '__main__':
     main()
