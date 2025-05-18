@@ -141,14 +141,13 @@ class StoreManager:
         skin_frame.pack(menu.add.horizontal_margin(10), align=pygame_menu.locals.ALIGN_LEFT)
 
         # TODO: Iterar sobre cada skin para crear su sección
+# En create_store_menu de tienda.py
         for num, preview_file, game_file, cost, unlocked in self.available_skins:
-            # TODO: Crear un frame vertical para cada skin (preview, label, botón)
             item_frame = skin_frame.pack(
                 menu.add.frame_v(width=200, height=280, frame_id=f'skin_{num}_frame'),
                 align=pygame_menu.locals.ALIGN_CENTER
             )
-
-            # TODO: Cargar y mostrar la imagen de vista previa
+            # Vista previa
             preview_path = os.path.join(SKIN_FOLDER, preview_file)
             try:
                 if not os.path.exists(preview_path):
@@ -157,32 +156,23 @@ class StoreManager:
                 scaled_preview = pygame.transform.scale(preview_surf, (100, 100))
                 item_frame.pack(menu.add.surface(scaled_preview), align=pygame_menu.locals.ALIGN_CENTER)
             except Exception as e:
-                # TODO: Mostrar un fallback si la imagen no se encuentra
                 print(f"Error cargando vista previa de skin {num}: {e}")
                 fallback = pygame.Surface((100, 100), pygame.SRCALPHA)
                 pygame.draw.rect(fallback, (100, 100, 100), (0, 0, 100, 100))
                 item_frame.pack(menu.add.surface(fallback), align=pygame_menu.locals.ALIGN_CENTER)
-
-            # TODO: Mostrar el estado de la skin con ancho limitado
+            # Estado
             status = "Desbloqueado" if unlocked else f"Costo: {cost} puntos"
             label_widget = menu.add.label(f"Skin {num} - {status}", font_size=14)
-            label_widget.set_max_width(180)  # TODO: Limitar ancho del label para evitar desborde
-            try:
-                item_frame.pack(label_widget, align=pygame_menu.locals.ALIGN_CENTER)
-            except Exception as e:
-                # TODO: Informar si falla el empaquetado del label
-                print(f"Error empaquetando label para skin {num}: {e}")
-                fallback_label = menu.add.label("Estado no disponible", font_size=14)
-                item_frame.pack(fallback_label, align=pygame_menu.locals.ALIGN_CENTER)
-
-            # TODO: Agregar botón Comprar si la skin no está desbloqueada
+            label_widget.set_max_width(180)
+            item_frame.pack(label_widget, align=pygame_menu.locals.ALIGN_CENTER)
+            # Botón Comprar
             if not unlocked:
                 buy_button = menu.add.button(
                     'Comprar',
                     create_buy_button(self, num, menu),
                     font_size=16
                 )
-                buy_button.set_background_color((255, 165, 0))  # TODO: Botón naranja para mejor estilo
+                buy_button.set_background_color((255, 165, 0))
                 item_frame.pack(buy_button, align=pygame_menu.locals.ALIGN_CENTER)
 
             # TODO: Agregar margen entre ítems para mejor separación
