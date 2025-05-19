@@ -11,15 +11,23 @@ def create_buy_button(store_manager, skin_num, menu):
     Returns:
         Función que ejecuta la lógica de compra.
     """
-    # TODO: Definir la función que se ejecuta al presionar el botón Comprar
     def buy_skin():
-        # TODO: Intentar comprar la skin usando StoreManager
         if store_manager.purchase_skin(skin_num):
-            # TODO: Forzar la actualización del menú para mostrar el cambio (skin desbloqueada)
+            print(f"Skin {skin_num} comprada exitosamente!")
+            # Actualizar el menú para reflejar que la skin está desbloqueada
             menu.force_surface_update()
+            # Agregar un mensaje temporal de éxito
+            menu.add.label("¡Compra exitosa!", font_size=20, font_color=(0, 255, 0), id=f"success_msg_{skin_num}")
+            # Eliminar el mensaje después de 2 segundos
+            menu.add.timer(2.0, lambda: menu.remove_widget(f"success_msg_{skin_num}"))
             return True
-        # TODO: Retornar False si no se pudo comprar (puntos insuficientes)
-        return False
+        else:
+            print(f"No se pudo comprar la skin {skin_num}: Puntos insuficientes o ya desbloqueada.")
+            # Agregar un mensaje temporal de error
+            menu.add.label("Puntos insuficientes", font_size=20, font_color=(255, 0, 0), id=f"error_msg_{skin_num}")
+            # Eliminar el mensaje después de 2 segundos
+            menu.add.timer(2.0, lambda: menu.remove_widget(f"error_msg_{skin_num}"))
+            return False
     return buy_skin
 
 def create_return_button(menu):
@@ -30,8 +38,6 @@ def create_return_button(menu):
     Returns:
         Función que ejecuta la lógica de regreso.
     """
-    # TODO: Definir la función que se ejecuta al presionar el botón Regresar
     def return_to_main():
-        # TODO: Deshabilitar el menú de la tienda para volver al menú principal
-        menu.disable()
+        menu.close()  # Cierra el menú de la tienda
     return return_to_main

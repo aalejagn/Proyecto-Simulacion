@@ -25,7 +25,7 @@ from config import (
 from assets import load_images
 
 def game_loop(surface, store_manager, music_manager, player_skin):
-    music_manager.play_game('sinsonido.mp3')
+    music_manager.play_game('game_music.mp3')
     clock = pygame.time.Clock()
     lane_manager = LaneManager()
     player = Player(2, {'left': pygame.K_LEFT, 'right': pygame.K_RIGHT}, player_skin)
@@ -39,17 +39,18 @@ def game_loop(surface, store_manager, music_manager, player_skin):
     obstacles = pygame.sprite.Group()
     explosions = pygame.sprite.Group()
 
-# En juego_retro.py, dentro de game_loop, después de ENEMY_IMG, OBSTACLE_IMG = load_images()
-# Dentro de game_loop, donde se crean los obstáculos
+    # Cargar imágenes y crear enemigos y obstáculos iniciales
     ENEMY_IMG, OBSTACLE_IMG = load_images()
     print(f"Loaded ENEMY_IMG size: {ENEMY_IMG.get_size()}")
     print(f"Loaded OBSTACLE_IMG size: {OBSTACLE_IMG.get_size()}")
-    for _ in range(obstacle_count):
-        obstacles.add(Obstacle(current_speed, lane_manager, OBSTACLE_IMG, debug=False))
-        # Removimos el print aquí también, ya que el debug ahora está en Obstacle.__init__
+    print(f"LANE_WIDTH: {LANE_WIDTH}")  # Añadido para depurar el tamaño del carril
 
-    # Más adelante, cuando se añaden más obstáculos al subir de nivel
-    while len(obstacles) < new_obstacle_count:
+    # Crear enemigos iniciales
+    for _ in range(enemy_count):
+        rivals.add(Rival(current_speed, lane_manager, ENEMY_IMG))
+
+    # Crear obstáculos iniciales
+    for _ in range(obstacle_count):
         obstacles.add(Obstacle(current_speed, lane_manager, OBSTACLE_IMG, debug=False))
 
     score = 0
@@ -94,7 +95,7 @@ def game_loop(surface, store_manager, music_manager, player_skin):
             keys = pygame.key.get_pressed()
             if keys[pygame.K_r]:
                 store_manager.add_points(score)
-                music_manager.play_game('sinsonido.mp3')
+                music_manager.play_game('game_music.mp3')
                 return game_loop(surface, store_manager, music_manager, player_skin)
             clock.tick(FPS)
             continue
@@ -118,7 +119,7 @@ def game_loop(surface, store_manager, music_manager, player_skin):
                     while len(rivals) < new_enemy_count:
                         rivals.add(Rival(current_speed, lane_manager, ENEMY_IMG))
                     while len(obstacles) < new_obstacle_count:
-                        obstacles.add(Obstacle(current_speed, lane_manager, OBSTACLE_IMG))
+                        obstacles.add(Obstacle(current_speed, lane_manager, OBSTACLE_IMG, debug=False))
 
         for o in obstacles:
             o.update(player.lane)

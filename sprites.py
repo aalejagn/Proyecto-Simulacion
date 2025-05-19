@@ -93,12 +93,13 @@ class Rival(pygame.sprite.Sprite):
         return False
 
 class Obstacle(pygame.sprite.Sprite):
-    def __init__(self, speed, lane_manager, image):
+    def __init__(self, speed, lane_manager, image, debug=False):
         super().__init__()
         # Escalar la imagen al tamaño deseado
         self.image = pygame.transform.scale(image, (LANE_WIDTH-20, 60))
         self.rect = self.image.get_rect()
-
+        if debug:
+            print(f"Obstacle initialized with image size: {self.image.get_size()}, rect: {self.rect}")
         self.lane_manager = lane_manager
         self.lane = self.lane_manager.get_random_lane()
         self.rect.centerx = self.lane * LANE_WIDTH + LANE_WIDTH // 2

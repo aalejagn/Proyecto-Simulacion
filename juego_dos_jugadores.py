@@ -13,7 +13,7 @@ from assets import load_images
 from sprites import LaneManager, Player, Rival, Obstacle, Explosion, ScoreDisplay
 
 def game_loop_2p(surface, store_manager, music_manager, skin1, skin2):
-    music_manager.play_game('sinsonido.mp3')
+    music_manager.play_game('game_music.mp3')
     clock = pygame.time.Clock()
     lane_manager = LaneManager()
     player1 = Player(2, {'left': pygame.K_a, 'right': pygame.K_d}, skin1)  # J1 en carril 2
@@ -82,7 +82,7 @@ def game_loop_2p(surface, store_manager, music_manager, skin1, skin2):
             keys = pygame.key.get_pressed()
             if keys[pygame.K_r]:
                 store_manager.add_points(score1 + score2)
-                music_manager.play_game('sinsonido.mp3')
+                music_manager.play_game('game_music.mp3')
                 return game_loop_2p(surface, store_manager, music_manager, skin1, skin2)
             clock.tick(FPS)
             continue
