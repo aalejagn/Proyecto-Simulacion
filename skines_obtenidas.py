@@ -194,3 +194,4 @@ class SkinManager:
         preview_widget.set_surface(surf_preview)
         label_widget.set_title(f"Skin {index+1}/{len(self.available_skins)}")
         menu.force_surface_update()
+

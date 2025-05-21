@@ -14,18 +14,25 @@ class Player(pygame.sprite.Sprite):
         self.invincible = False
         self.invincible_timer = 0
         self.controls = controls  # Ej: {"left": pygame.K_a, "right": pygame.K_d}
-
+        self.active = True  # Está activo por defecto
+        
     def move_left(self):
+        if not self.active:
+            return
         if self.lane > 0:
             self.lane -= 1
             self.rect.centerx = self.lane * LANE_WIDTH + LANE_WIDTH // 2
 
     def move_right(self):
+        if not self.active:
+            return
         if self.lane < LANES - 1:
             self.lane += 1
             self.rect.centerx = self.lane * LANE_WIDTH + LANE_WIDTH // 2
 
     def update(self):
+        if not self.active:
+            return  # Si está muerto, no hace nada
         if self.invincible:
             self.invincible_timer -= 1
             if self.invincible_timer <= 0:
@@ -176,3 +183,29 @@ class ScoreDisplay:
         progress = (max(self.score1, self.score2) % threshold) / threshold
         pygame.draw.rect(surface, (100, 100, 100), (WIDTH - 120, 60, 100, 10))
         pygame.draw.rect(surface, (0, 255, 0), (WIDTH - 120, 60, int(100 * progress), 10))
+        
+        
+class ScoreDisplay2:
+    def __init__(self, skin):
+        self.score1 = 0
+        self.score2 = 0
+        self.level = 1
+        self.lives1 = 0
+        self.lives2 = 0
+        self.font = pygame.font.SysFont(None, 36)
+
+    def update(self, score1, score2, level, lives1, lives2):
+        self.score1 = score1
+        self.score2 = score2
+        self.level = level
+        self.lives1 = lives1
+        self.lives2 = lives2
+
+    def draw(self, surface):
+        text1 = self.font.render(f"J1: {self.score1}  Vidas: {self.lives1}", True, (255, 255, 255))
+        text2 = self.font.render(f"J2: {self.score2}  Vidas: {self.lives2}", True, (255, 255, 255))
+        level_text = self.font.render(f"Nivel: {self.level}", True, (255, 255, 0))
+
+        surface.blit(text1, (20, 10))
+        surface.blit(text2, (20, 50))
+        surface.blit(level_text, (WIDTH - 150, 10))

@@ -307,7 +307,7 @@ def main():
     )
 
     skin_btn = menu.add.button(
-        "🎨 Skins",
+        "★ Skins",
         lambda: show_skin_menu(menu, surface, skin_manager)
     )
     skin_btn.set_position(WIDTH - skin_btn.get_width() - 20, HEIGHT - skin_btn.get_height() - 20)
