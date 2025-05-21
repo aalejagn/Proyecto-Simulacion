@@ -202,5 +202,6 @@ def game_loop_2p(surface, store_manager, music_manager, skin1, skin2):
             menu_over.add.label(f"{i+1}. {s}", font_size=22)
         menu_over.add.vertical_margin(20)
     menu_over.add.button('🔁 Reiniciar', lambda: game_loop_2p(surface, store_manager, music_manager, skin1, skin2))
-    menu_over.add.button('🏠 Lobby', pygame_menu.events.EXIT)
+    menu_over.add.button('🏠 Lobby', lambda: menu_over.disable())
     menu_over.mainloop(surface)
+    return

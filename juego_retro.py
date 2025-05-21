@@ -179,9 +179,29 @@ def game_loop(surface, store_manager, music_manager, player_skin):
         for i, s in enumerate(scores[:3]):
             menu_over.add.label(f"{i+1}. {s}", font_size=22)
         menu_over.add.vertical_margin(20)
+        
+    lobby_selected = [False]  # Mutable para modificar dentro del botón
+    
     menu_over.add.button('🔁 Reiniciar', lambda: game_loop(surface, store_manager, music_manager, player_skin))
-    menu_over.add.button('🏠 Lobby', pygame_menu.events.EXIT)
-    menu_over.mainloop(surface)
+    menu_over.add.button('🏠 Lobby', lambda: lobby_selected.__setitem__(0, True))
+
+    while True:
+        surface.fill((15, 10, 25))
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        if lobby_selected[0]:
+            break  # Salir del menú y volver al menú principal
+
+        menu_over.update(events)
+        menu_over.draw(surface)
+        pygame.display.flip()
+    
+
+
 
 def main():
     pygame.init()
@@ -242,24 +262,6 @@ def main():
             print("Revisa la carpeta SKIN_STORE para skin_store1.png, skin_store2.png, skin_store3.png")
             menu.enable()
 
-    skin_btn = menu.add.button(
-        "🎨 Skins",
-        show_skin_menu,
-        menu,
-        surface,
-        skin_manager,
-        align=pygame_menu.locals.ALIGN_CENTER
-    ).set_position(WIDTH-70, HEIGHT-70)
-
-    store_btn = menu.add.button(
-        "🛒 Tienda",
-        show_store_menu,
-        menu,
-        surface,
-        store_manager,
-        align=pygame_menu.locals.ALIGN_CENTER
-    ).set_position(WIDTH-70, HEIGHT-100)
-
     scores = load_scores()
     if scores:
         menu.add.label("Récords:", font_size=20, align=pygame_menu.locals.ALIGN_LEFT)
@@ -292,7 +294,28 @@ def main():
         (20, 40, 20),
         (255, 255, 0)
     )
+
+
+    # Botón Tienda debajo de los anteriores (también centrado)
+    store_btn = menu.add.button(
+        "🛒 Tienda",
+        show_store_menu,
+        menu,
+        surface,
+        store_manager,
+        align=pygame_menu.locals.ALIGN_CENTER
+    )
+
+    skin_btn = menu.add.button(
+        "🎨 Skins",
+        lambda: show_skin_menu(menu, surface, skin_manager)
+    )
+    skin_btn.set_position(WIDTH - skin_btn.get_width() - 20, HEIGHT - skin_btn.get_height() - 20)
+
+    
     crear_botones("Salir", pygame_menu.events.EXIT, (80, 20, 20), (255, 255, 255))
+    
+    
 
     menu.mainloop(surface)
     music_manager.limpieza()
