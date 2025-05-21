@@ -117,7 +117,7 @@ class SkinManager:
             width=self.width,
             height=self.height,
             theme=theme,
-            onclose=on_return
+            onclose=pygame_menu.events.BACK  # Esto asegura que ESC también regrese
         )
 
         # Frame para alinear las secciones de los dos jugadores
@@ -176,8 +176,9 @@ class SkinManager:
         )
 
         # Botones de acción
-        menu.add.button('Seleccionar', on_select if on_select else lambda: None)
-        menu.add.button('Regresar', on_return)
+        menu.add.button('Regresar', 
+                   lambda: [menu.disable(), on_return()] if callable(on_return) else menu.disable())
+    
         return menu
 
     def _navigate(self, menu, direction, player=1):
@@ -194,4 +195,5 @@ class SkinManager:
         preview_widget.set_surface(surf_preview)
         label_widget.set_title(f"Skin {index+1}/{len(self.available_skins)}")
         menu.force_surface_update()
+
 

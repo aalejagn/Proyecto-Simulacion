@@ -191,7 +191,6 @@ def game_loop(surface, store_manager, music_manager, player_skin):
         # 3) Fuente y color de texto
     menu_over_theme.widget_font            = pygame_menu.font.FONT_8BIT
     lobby_selected = [False]  # Mutable para modificar dentro del botón
-
     
     menu_over.add.button('Reiniciar', lambda: game_loop(surface, store_manager, music_manager, player_skin))
     menu_over.add.button('Lobby', lambda: lobby_selected.__setitem__(0, True))
