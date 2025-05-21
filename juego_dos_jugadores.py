@@ -248,6 +248,25 @@ def game_loop_2p(surface, store_manager, music_manager, skin1, skin2):
     menu_over_theme.widget_padding         = (8, 20)  # (vertical, horizontal)
     menu_over_theme.widget_margin          = (0, 10)   # separación entre botones
     
-    menu_over.add.button('Reiniciar', lambda: game_loop_2p(surface, store_manager, music_manager, skin1, skin2))
-    menu_over.add.button('Lobby', pygame_menu.events.EXIT)
+    # Define acciones para los botones
+    def restart_game():
+        """Reinicia el juego"""
+        menu_over.disable()  # Cierra el menú actual
+        # Llama a la función de juego nuevamente
+        game_loop_2p(surface, store_manager, music_manager, skin1, skin2)
+
+    def return_to_lobby():
+        """Vuelve al menú principal"""
+        menu_over.disable()  # Cierra el menú actual
+        # Al salir de esta función, el juego volverá automáticamente al menú principal
+
+    # Cambia a esto:
+    # Añade los botones
+    menu_over.add.button('Reiniciar', restart_game)
+    menu_over.add.button('Lobby', return_to_lobby)
+
+    # Ejecuta el menú
     menu_over.mainloop(surface)
+
+    # Cuando el menú se cierra (por cualquier botón), el flujo continúa aquí
+    return  # Esto hace que salgas de game_loop_2p y vuelvas al menú principal
