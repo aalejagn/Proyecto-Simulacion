@@ -172,9 +172,7 @@ class ScoreDisplay:
         hud.fill((0, 0, 0, 150))
         surface.blit(hud, (0, 0))
         score1_text = self.big_font.render(f"J1: {self.score1}", True, (255, 255, 255))
-        score2_text = self.big_font.render(f"J2: {self.score2}", True, (255, 255, 255))
         surface.blit(score1_text, (20, 20))
-        surface.blit(score2_text, (120, 20))
         level_text = self.font.render(f"Nivel: {self.level}", True, (200, 200, 200))
         surface.blit(level_text, (WIDTH - 120, 20))
         for i in range(self.lives):

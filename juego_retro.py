@@ -169,21 +169,32 @@ def game_loop(surface, store_manager, music_manager, player_skin):
     menu_over_theme.widget_selection_effect = pygame_menu.widgets.LeftArrowSelection(arrow_size=(15, 20))
     menu_over_theme.widget_background_color = (40, 20, 40)
     menu_over_theme.widget_alignment = pygame_menu.locals.ALIGN_CENTER
+    
+    menu_over_theme.widget_border_radius   = 25    # esquinas redondeadas
+    menu_over_theme.widget_border_width    = 2
+    menu_over_theme.widget_border_color    = (255, 255, 255)
+    menu_over_theme.widget_padding         = (8, 35)  # (vertical, horizontal)
+    menu_over_theme.widget_margin          = (0, 10)   # separación entre botones
+    
 
+    
     menu_over = pygame_menu.Menu('Fin del Juego', WIDTH, HEIGHT, theme=menu_over_theme)
-    menu_over.add.label(f"Puntuación Final: {score}", font_size=32)
+    menu_over.add.label(f"Puntuación Final  {score}", font_size=32)
     menu_over.add.vertical_margin(15)
     scores = load_scores()
     if scores:
-        menu_over.add.label("🏆 Mejores Puntuaciones:", font_size=26)
+        menu_over.add.label("Mejores Puntuaciones", font_size=26)
         for i, s in enumerate(scores[:3]):
             menu_over.add.label(f"{i+1}. {s}", font_size=22)
         menu_over.add.vertical_margin(20)
         
+        # 3) Fuente y color de texto
+    menu_over_theme.widget_font            = pygame_menu.font.FONT_8BIT
     lobby_selected = [False]  # Mutable para modificar dentro del botón
+
     
-    menu_over.add.button('🔁 Reiniciar', lambda: game_loop(surface, store_manager, music_manager, player_skin))
-    menu_over.add.button('🏠 Lobby', lambda: lobby_selected.__setitem__(0, True))
+    menu_over.add.button('Reiniciar', lambda: game_loop(surface, store_manager, music_manager, player_skin))
+    menu_over.add.button('Lobby', lambda: lobby_selected.__setitem__(0, True))
 
     while True:
         surface.fill((15, 10, 25))
@@ -223,7 +234,18 @@ def main():
     menu_theme.widget_selection_effect = pygame_menu.widgets.LeftArrowSelection(arrow_size=(15, 20))
     menu_theme.widget_background_color = (30, 30, 60)
     menu_theme.widget_alignment = pygame_menu.locals.ALIGN_CENTER
+    # 2) Bordes y padding
+    menu_theme.widget_border_radius   = 25    # esquinas redondeadas
+    menu_theme.widget_border_width    = 2
+    menu_theme.widget_border_color    = (255, 255, 255)
+    menu_theme.widget_padding         = (8, 35)  # (vertical, horizontal)
+    menu_theme.widget_margin          = (0, 10)   # separación entre botones
+    
+    # 3) Fuente y color de texto
+    menu_theme.widget_font            = pygame_menu.font.FONT_8BIT
 
+    
+  # 4) Crea tu menú con este tema
     menu = pygame_menu.Menu(
         title='Carreras Retro',
         width=WIDTH,
@@ -264,9 +286,9 @@ def main():
 
     scores = load_scores()
     if scores:
-        menu.add.label("Récords:", font_size=20, align=pygame_menu.locals.ALIGN_LEFT)
+        menu.add.label("Records", font_size=20, align=pygame_menu.locals.ALIGN_LEFT)
         for i, s in enumerate(scores[:3]):
-            menu.add.label(f"{i+1}. {s}", font_size=18, align=pygame_menu.locals.ALIGN_LEFT)
+            menu.add.label(f"N{i+1}  {s}", font_size=18, align=pygame_menu.locals.ALIGN_LEFT)
         menu.add.vertical_margin(20)
 
     def crear_botones(texto, accion, color_fondo, color_texto):
@@ -275,15 +297,22 @@ def main():
         boton.set_max_width(300)
         boton.set_background_color(color_fondo)
 
-    # Botones del menú principal
-    crear_botones(
-        "🚗 1 Jugador",
-        lambda: game_loop(surface, store_manager, music_manager, skin_manager.get_current_game_skin(player=1)),
-        (20, 40, 20),
-        (255, 255, 0)
+    # 1 Jugador
+    btn1 = menu.add.button(
+        "1 Jugador",
+        lambda: game_loop(
+            surface,
+            store_manager,
+            music_manager,
+            skin_manager.get_current_game_skin(player=1)
+        ),
+        align=pygame_menu.locals.ALIGN_CENTER
     )
-    crear_botones(
-        "🚗🚗 2 Jugadores",
+    btn1.set_background_color((30, 144, 255))
+
+    # 2 Jugadores
+    btn2 = menu.add.button(
+        "2 Jugadores",
         lambda: game_loop_2p(
             surface,
             store_manager,
@@ -291,30 +320,32 @@ def main():
             skin_manager.get_current_game_skin(player=1),
             skin_manager.get_current_game_skin(player=2)
         ),
-        (20, 40, 20),
-        (255, 255, 0)
-    )
-
-
-    # Botón Tienda debajo de los anteriores (también centrado)
-    store_btn = menu.add.button(
-        "🛒 Tienda",
-        show_store_menu,
-        menu,
-        surface,
-        store_manager,
         align=pygame_menu.locals.ALIGN_CENTER
     )
+    btn2.set_background_color((50, 205, 50))
 
+    # Tienda
+    store_btn = menu.add.button(
+        "Tienda",
+        show_store_menu,
+        menu, surface, store_manager,
+        align=pygame_menu.locals.ALIGN_CENTER
+    )
+    store_btn.set_background_color((255, 215, 0))
+
+    # Skins (esquina)
     skin_btn = menu.add.button(
-        "★ Skins",
+        "Skins",
         lambda: show_skin_menu(menu, surface, skin_manager)
     )
-    skin_btn.set_position(WIDTH - skin_btn.get_width() - 20, HEIGHT - skin_btn.get_height() - 20)
+    skin_btn.set_background_color((138, 43, 226))  # púrpura
+    skin_btn.set_position(WIDTH - skin_btn.get_width() - 20,
+                        HEIGHT - skin_btn.get_height() - 20)
 
-    
-    crear_botones("Salir", pygame_menu.events.EXIT, (80, 20, 20), (255, 255, 255))
-    
+    # Salir
+    btn_exit = menu.add.button("Salir", pygame_menu.events.EXIT, align=pygame_menu.locals.ALIGN_CENTER)
+    btn_exit.set_background_color((220, 20, 60))
+
     
 
     menu.mainloop(surface)

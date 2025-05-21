@@ -221,18 +221,33 @@ def game_loop_2p(surface, store_manager, music_manager, skin1, skin2):
     menu_over_theme.widget_selection_effect = pygame_menu.widgets.LeftArrowSelection(arrow_size=(15, 20))
     menu_over_theme.widget_background_color = (40, 20, 40)
     menu_over_theme.widget_alignment = pygame_menu.locals.ALIGN_CENTER
+    
+
 
     menu_over = pygame_menu.Menu('Fin del Juego', WIDTH, HEIGHT, theme=menu_over_theme)
     menu_over.add.label(f"Puntuación J1: {score1}", font_size=32)
     menu_over.add.label(f"Puntuación J2: {score2}", font_size=32)
     menu_over.add.label(f"Total: {score1 + score2}", font_size=32)
+    
+
+    
     menu_over.add.vertical_margin(15)
     scores = load_scores()
     if scores:
-        menu_over.add.label("🏆 Mejores Puntuaciones:", font_size=26)
+        menu_over.add.label("Mejores Puntuaciones:", font_size=26)
         for i, s in enumerate(scores[:3]):
             menu_over.add.label(f"{i+1}. {s}", font_size=22)
         menu_over.add.vertical_margin(20)
-    menu_over.add.button('🔁 Reiniciar', lambda: game_loop_2p(surface, store_manager, music_manager, skin1, skin2))
-    menu_over.add.button('🏠 Lobby', pygame_menu.events.EXIT)
+        
+     # 3) Fuente y color de texto
+    menu_over_theme.widget_font            = pygame_menu.font.FONT_8BIT
+
+    menu_over_theme.widget_border_radius   = 25    # esquinas redondeadas
+    menu_over_theme.widget_border_width    = 2
+    menu_over_theme.widget_border_color    = (255, 255, 255)
+    menu_over_theme.widget_padding         = (8, 20)  # (vertical, horizontal)
+    menu_over_theme.widget_margin          = (0, 10)   # separación entre botones
+    
+    menu_over.add.button('Reiniciar', lambda: game_loop_2p(surface, store_manager, music_manager, skin1, skin2))
+    menu_over.add.button('Lobby', pygame_menu.events.EXIT)
     menu_over.mainloop(surface)
