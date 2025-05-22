@@ -253,6 +253,7 @@ def main():
     )
     music_manager.play_game('menu_music.mp3')
 
+
     def show_skin_menu(menu, surface, skin_manager):
         music_manager.play_game('menu_music.mp3')
         menu.disable()
@@ -287,7 +288,7 @@ def main():
     if scores:
         menu.add.label("Records", font_size=20, align=pygame_menu.locals.ALIGN_LEFT)
         for i, s in enumerate(scores[:3]):
-            menu.add.label(f"N{i+1}  {s}", font_size=18, align=pygame_menu.locals.ALIGN_LEFT)
+            menu.add.label(f"N{i+1}  {s}", font_size=12, align=pygame_menu.locals.ALIGN_LEFT)
         menu.add.vertical_margin(20)
 
     def crear_botones(texto, accion, color_fondo, color_texto):
@@ -296,6 +297,10 @@ def main():
         boton.set_max_width(300)
         boton.set_background_color(color_fondo)
 
+
+
+    menu_theme.widget_font_size = 25  # Tamaño base para todos los widgets
+    
     # 1 Jugador
     btn1 = menu.add.button(
         "1 Jugador",
@@ -308,6 +313,10 @@ def main():
         align=pygame_menu.locals.ALIGN_CENTER
     )
     btn1.set_background_color((30, 144, 255))
+    btn1.translate(
+        0,  # Posición X (20px desde la derecha)
+        -100  # Posición Y (20px desde abajo)
+    )
 
     # 2 Jugadores
     btn2 = menu.add.button(
@@ -322,30 +331,56 @@ def main():
         align=pygame_menu.locals.ALIGN_CENTER
     )
     btn2.set_background_color((50, 205, 50))
+    btn2.translate(
+        0,  # Posición X (20px desde la derecha)
+        -95  # Posición Y (20px desde abajo)
+    )
 
+
+    # Salir
+    btn_exit = menu.add.button("Salir", pygame_menu.events.EXIT, align=pygame_menu.locals.ALIGN_CENTER)
+    btn_exit.set_background_color((220, 20, 60))
+    btn_exit.translate(
+        0,  # Posición X (20px desde la derecha)
+        -65  # Posición Y (20px desde abajo)
+    )
+    
+    # Skins (esquina)
+    skin_btn = menu.add.button(
+        """Skins""",
+        lambda: show_skin_menu(menu, surface, skin_manager)
+    )
+    skin_btn.set_background_color((138, 43, 226))  # púrpura
+
+    
+
+    # Posicionamiento usando translate (funciona en todas versiones)
+    skin_btn.translate(
+        350,  # Posición X (20px desde la derecha)
+        40  # Posición Y (20px desde abajo)
+    )
+
+    # Opcional: Configuración para que se mantenga visible
+    skin_btn.set_float(True)  # Esto evita que se mueva con el scroll si lo hay
+    
     # Tienda
     store_btn = menu.add.button(
         "Tienda",
         show_store_menu,
         menu, surface, store_manager,
         align=pygame_menu.locals.ALIGN_CENTER
+        
     )
     store_btn.set_background_color((255, 215, 0))
-
-    # Skins (esquina)
-    skin_btn = menu.add.button(
-        "Skins",
-        lambda: show_skin_menu(menu, surface, skin_manager)
-    )
-    skin_btn.set_background_color((138, 43, 226))  # púrpura
-    skin_btn.set_position(WIDTH - skin_btn.get_width() - 20,
-                        HEIGHT - skin_btn.get_height() - 20)
-
-    # Salir
-    btn_exit = menu.add.button("Salir", pygame_menu.events.EXIT, align=pygame_menu.locals.ALIGN_CENTER)
-    btn_exit.set_background_color((220, 20, 60))
-
     
+        # Posicionamiento usando translate (funciona en todas versiones)
+    store_btn.translate(
+        -350,  # Posición X (20px desde la derecha)
+        40  # Posición Y (20px desde abajo)
+    )
+
+    # Opcional: Configuración para que se mantenga visible
+    store_btn.set_float(True)  # Esto evita que se mueva con el scroll si lo hay
 
     menu.mainloop(surface)
     music_manager.limpieza()
