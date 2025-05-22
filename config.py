@@ -1,4 +1,3 @@
-
 import json
 import os
 
@@ -9,7 +8,7 @@ LANE_WIDTH = WIDTH // LANES
 FPS = 60
 LIVES = 3
 SCORES_FILE = 'highscores.json'
-TOP_SCORES = 3
+TOP_SCORES = 5  # Cambiado de 3 a 5 para mantener las 5 mejores puntuaciones
 
 # --- Configuración de Niveles ---
 BASE_SPEED = 3
@@ -45,9 +44,40 @@ def get_obstacle_count(level):
 def load_scores():
     if os.path.exists(SCORES_FILE):
         with open(SCORES_FILE, 'r') as f:
-            return json.load(f)
+            try:
+                scores = json.load(f)
+                print(f"Puntuaciones cargadas desde el archivo: {scores}")
+                # Manejar el formato antiguo (solo números) y el nuevo formato (iniciales y puntuación)
+                if scores and isinstance(scores[0], (int, float)):  # Formato antiguo: [10, 20, 30]
+                    converted_scores = [('---', score) for score in scores]
+                    print(f"Convertido formato antiguo a: {converted_scores}")
+                    return converted_scores
+                else:  # Formato nuevo: [{"initials": "ALE", "score": 500}, ...]
+                    converted_scores = [(entry['initials'], entry['score']) for entry in scores]
+                    print(f"Formato nuevo cargado: {converted_scores}")
+                    return converted_scores
+            except (json.JSONDecodeError, KeyError, TypeError) as e:
+                print(f"Error al cargar highscores.json: {e}. Inicializando como lista vacía.")
+                return []
+    print("No se encontró highscores.json, inicializando como lista vacía.")
     return []
 
 def save_scores(scores):
-    with open(SCORES_FILE, 'w') as f:
-        json.dump(scores, f)
+    try:
+        formatted_scores = [{'initials': initials, 'score': score} for initials, score in scores]
+        with open(SCORES_FILE, 'w') as f:
+            json.dump(formatted_scores, f)
+        print(f"Puntuaciones guardadas en el archivo: {formatted_scores}")
+    except Exception as e:
+        print(f"Error al guardar las puntuaciones en highscores.json: {e}")
+
+def add_score(initials, score):
+    try:
+        scores = load_scores()
+        scores.append((initials.upper(), score))
+        scores.sort(key=lambda x: x[1], reverse=True)
+        scores = scores[:TOP_SCORES]
+        save_scores(scores)
+        print(f"Nueva puntuación añadida: {initials}, {score}. Lista actual: {scores}")
+    except Exception as e:
+        print(f"Error al añadir la puntuación: {e}")

@@ -1,5 +1,5 @@
 {
-    "points": 12983,
+    "points": 14730,
     "skins": [
         [
             1,
@@ -20,7 +20,7 @@
             "skin_store3.png",
             "skin_store3.png",
             500,
-            false
+            true
         ],
         [
             4,

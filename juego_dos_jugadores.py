@@ -3,11 +3,11 @@ import sys
 import math
 import pygame_menu
 import pygame_menu.widgets
-
+from nuevo import show_initials_input_menu, show_game_over_menu
 from config import (
     WIDTH, HEIGHT, LANES, LANE_WIDTH, FPS, LIVES, TOP_SCORES,
     get_level_speed, get_level_points, get_level_up_threshold,
-    get_enemy_count, get_obstacle_count, load_scores, save_scores
+    get_enemy_count, get_obstacle_count, load_scores
 )
 from assets import load_images
 from sprites import LaneManager, Player, Rival, Obstacle, Explosion, ScoreDisplay2
@@ -147,13 +147,7 @@ def game_loop_2p(surface, store_manager, music_manager, skin1, skin2):
                 if obstacle_hit1:
                     print("Reproduciendo explosión")
                     music_manager.play_sound('explosion_sound.mp3')
-                    obstacle_hit1.reset(min(player1.lane, player2.lane))                                      
-                if lives1 == 0 and lives2 == 0:
-                    scores = load_scores()
-                    scores.append(score1 + score2)
-                    save_scores(sorted(scores, reverse=True)[:TOP_SCORES])
-                    store_manager.add_points(score1 + score2)
-                    break
+                    obstacle_hit1.reset(min(player1.lane, player2.lane))
 
         if player2.alive() and not player2.invincible:
             rival_hit2 = pygame.sprite.spritecollideany(player2, rivals)
@@ -174,25 +168,18 @@ def game_loop_2p(surface, store_manager, music_manager, skin1, skin2):
                     music_manager.play_sound('explosion_sound.mp3')
                     obstacle_hit2.reset(min(player1.lane, player2.lane))
 
-                if lives1 == 0 and lives2 == 0:
-                    scores = load_scores()
-                    scores.append(score1 + score2)
-                    save_scores(sorted(scores, reverse=True)[:TOP_SCORES])
-                    store_manager.add_points(score1 + score2)
-                    break
-
+        # Verificar si ambos jugadores han perdido
         if lives1 <= 0 and lives2 <= 0:
-            # Guardar puntuación y salir del bucle
-            scores = load_scores()
-            scores.append(score1 + score2)
-            save_scores(sorted(scores, reverse=True)[:TOP_SCORES])
-            store_manager.add_points(score1 + score2)
+            final_score = max(score1, score2)
+            store_manager.add_points(final_score)
+            current_scores = load_scores()
+            if current_scores and len(current_scores) >= TOP_SCORES and final_score <= current_scores[-1][1]:
+                # Si la puntuación no entra en el top 5, no pedimos iniciales
+                show_game_over_menu(surface, score1, score2, music_manager, skin1, skin2, store_manager)
+            else:
+                # Si la puntuación entra en el top 5, pedimos iniciales
+                show_initials_input_menu(surface, final_score, music_manager, lambda: show_game_over_menu(surface, score1, score2, music_manager, skin1, skin2, store_manager))
             break
-
-
-
-
-
 
         surface.fill((50, 50, 50))
         for i in range(1, LANES):
@@ -204,69 +191,10 @@ def game_loop_2p(surface, store_manager, music_manager, skin1, skin2):
         if player2.alive():
             surface.blit(player2.image, player2.rect)
         explosions.draw(surface)
-        score_display.update(score1, score2, current_level,lives1, lives2)
+        score_display.update(score1, score2, current_level, lives1, lives2)
         score_display.draw(surface)
         pygame.display.flip()
         clock.tick(FPS)
 
-    music_manager.play_game('menu_music.mp3')
-    menu_over_theme = pygame_menu.themes.THEME_DARK.copy()
-    menu_over_theme.background_color = (15, 10, 25)
-    menu_over_theme.title_font = pygame_menu.font.FONT_8BIT
-    menu_over_theme.title_font_size = 48
-    menu_over_theme.title_background_color = (120, 0, 20)
-    menu_over_theme.title_font_color = (255, 255, 255)
-    menu_over_theme.widget_font_size = 26
-    menu_over_theme.widget_font_color = (255, 255, 255)
-    menu_over_theme.widget_selection_effect = pygame_menu.widgets.LeftArrowSelection(arrow_size=(15, 20))
-    menu_over_theme.widget_background_color = (40, 20, 40)
-    menu_over_theme.widget_alignment = pygame_menu.locals.ALIGN_CENTER
-    
-
-
-    menu_over = pygame_menu.Menu('Fin del Juego', WIDTH, HEIGHT, theme=menu_over_theme)
-    menu_over.add.label(f"Puntuación J1: {score1}", font_size=32)
-    menu_over.add.label(f"Puntuación J2: {score2}", font_size=32)
-    menu_over.add.label(f"Total: {score1 + score2}", font_size=32)
-    
-
-    
-    menu_over.add.vertical_margin(15)
-    scores = load_scores()
-    if scores:
-        menu_over.add.label("Mejores Puntuaciones:", font_size=26)
-        for i, s in enumerate(scores[:3]):
-            menu_over.add.label(f"{i+1}. {s}", font_size=22)
-        menu_over.add.vertical_margin(20)
-        
-     # 3) Fuente y color de texto
-    menu_over_theme.widget_font            = pygame_menu.font.FONT_8BIT
-
-    menu_over_theme.widget_border_radius   = 25    # esquinas redondeadas
-    menu_over_theme.widget_border_width    = 2
-    menu_over_theme.widget_border_color    = (255, 255, 255)
-    menu_over_theme.widget_padding         = (8, 20)  # (vertical, horizontal)
-    menu_over_theme.widget_margin          = (0, 10)   # separación entre botones
-    
-    # Define acciones para los botones
-    def restart_game():
-        """Reinicia el juego"""
-        menu_over.disable()  # Cierra el menú actual
-        # Llama a la función de juego nuevamente
-        game_loop_2p(surface, store_manager, music_manager, skin1, skin2)
-
-    def return_to_lobby():
-        """Vuelve al menú principal"""
-        menu_over.disable()  # Cierra el menú actual
-        # Al salir de esta función, el juego volverá automáticamente al menú principal
-
-    # Cambia a esto:
-    # Añade los botones
-    menu_over.add.button('Reiniciar', restart_game)
-    menu_over.add.button('Lobby', return_to_lobby)
-
-    # Ejecuta el menú
-    menu_over.mainloop(surface)
-
-    # Cuando el menú se cierra (por cualquier botón), el flujo continúa aquí
-    return  # Esto hace que salgas de game_loop_2p y vuelvas al menú principal
+    # El menú de fin de juego ya se maneja dentro del bloque anterior, así que simplemente retornamos
+    return

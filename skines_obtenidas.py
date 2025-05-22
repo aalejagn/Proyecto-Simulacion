@@ -10,9 +10,6 @@ STORE_DATA_FILE = os.path.join(STORE_FOLDER, "store_data.json")
 
 class SkinManager:
     def __init__(self, width, height):
-        """
-        width, height: tamaño de la ventana para ajustar el menú
-        """
         self.width = width
         self.height = height
         self.current_index = 0  # Skin para jugador 1
@@ -27,9 +24,7 @@ class SkinManager:
         if not os.path.isdir(STORE_FOLDER):
             os.makedirs(STORE_FOLDER)
             
-            
     def validate_skin_files(self):
-        """Verificación exhaustiva de archivos de skins"""
         missing_files = []
         valid_skins = []
         
@@ -40,14 +35,11 @@ class SkinManager:
             files_exist = os.path.exists(preview_path) and os.path.exists(game_path)
             
             if not files_exist:
-                print(f"[WARN] Skin {num} falta: {preview if not os.path.exists(preview_path) else game}")
                 missing_files.append((num, preview, game))
             else:
                 valid_skins.append((num, preview, game))
         
         if missing_files:
-            print(f"[WARN] {len(missing_files)} archivos de skins faltantes")
-            
             # Crear archivos placeholder para skins faltantes
             for num, preview, game in missing_files:
                 self._create_placeholder_skin(num, preview, game)
@@ -55,19 +47,15 @@ class SkinManager:
         self.available_skins = valid_skins
         return len(missing_files) == 0
     
-    
     def _load_skins(self):
-        """Carga skins desbloqueadas desde store_data.json"""
         import json
         self.available_skins = []
         default_skins = [(1, "skin_store1.png", "skin_store2.png")]
         
         try:
             if os.path.exists(STORE_DATA_FILE):
-                print(f"Intentando cargar skins desde: {STORE_DATA_FILE}")  # Debug
                 with open(STORE_DATA_FILE, 'r', encoding='utf-8') as f:
                     data = json.load(f)
-                    print("Contenido del archivo JSON:", data)  # Debug
                     
                     if not isinstance(data, dict):
                         raise ValueError("El archivo JSON no contiene un objeto válido")
@@ -82,28 +70,23 @@ class SkinManager:
                                 num, preview, game, cost, unlocked = skin_item[:5]
                                 if unlocked:
                                     self.available_skins.append((num, preview, game))
-                                    print(f"Skin cargada: {preview}")  # Debug
-                            else:
-                                print(f"Elemento de skin inválido: {skin_item}")  # Debug
-                        except Exception as e:
-                            print(f"Error procesando skin: {e}")  # Debug
+                        except Exception:
                             continue
                             
-        except json.JSONDecodeError as e:
-            print(f"ERROR: Archivo JSON corrupto - {e}")
-        except Exception as e:
-            print(f"ERROR inesperado al cargar skins: {e}")
+        except json.JSONDecodeError:
+            pass
+        except Exception:
+            pass
         finally:
             self.available_skins.sort(key=lambda x: x[0])
             if not self.available_skins:
-                print("Usando skins por defecto")  # Debug
                 self.available_skins = default_skins
             
-            # Resetear índices si son inválidos
             if self.current_index >= len(self.available_skins):
                 self.current_index = 0
             if self.current_index2 >= len(self.available_skins):
                 self.current_index2 = 0
+
 
     def get_current_game_skin(self, player=1) -> pygame.Surface:
         """Devuelve surface de la skin seleccionada (100×60)"""
@@ -221,11 +204,11 @@ class SkinManager:
         )
         player2_frame.pack(
             menu.add.button('▶', lambda: self._navigate(menu, 1, player=2), font_size=16),
-            align=pygame_menu.locals.ALIGN_CENTER
+           
         )
         player2_frame.pack(
             menu.add.label(lambda: f"Skin {self.current_index2+1}/{len(self.available_skins)}", font_size=16),
-            align=pygame_menu.locals.ALIGN_CENTER
+           
         )
             # 2) Bordes y padding
         theme.widget_border_radius   = 25    # esquinas redondeadas

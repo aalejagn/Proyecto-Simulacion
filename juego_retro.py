@@ -1,5 +1,6 @@
 import pygame
 import pygame_menu
+from nuevo import show_initials_input_menu, show_game_over_menu
 import random
 import json
 import os
@@ -23,6 +24,8 @@ from config import (
     load_scores, save_scores
 )
 from assets import load_images
+
+
 
 def game_loop(surface, store_manager, music_manager, player_skin):
     music_manager.play_game('game_music.mp3')
@@ -138,11 +141,14 @@ def game_loop(surface, store_manager, music_manager, player_skin):
                     print("Reproduciendo explosión")
                     music_manager.play_sound('explosion_sound.mp3')
                     obstacle_hit.reset(player.lane)
+                # Dentro de game_loop
                 if lives == 0:
-                    scores = load_scores()
-                    scores.append(score)
-                    save_scores(sorted(scores, reverse=True)[:TOP_SCORES])
                     store_manager.add_points(score)
+                    current_scores = load_scores()
+                    if current_scores and len(current_scores) >= 5 and score <= current_scores[-1][1]:
+                        show_game_over_menu(surface, score, 0, music_manager, player_skin, None, store_manager)
+                    else:
+                        show_initials_input_menu(surface, score, music_manager, lambda: show_game_over_menu(surface, score, 0, music_manager, player_skin, None, store_manager))
                     break
 
         surface.fill((50, 50, 50))
@@ -287,8 +293,8 @@ def main():
     scores = load_scores()
     if scores:
         menu.add.label("Records", font_size=20, align=pygame_menu.locals.ALIGN_LEFT)
-        for i, s in enumerate(scores[:3]):
-            menu.add.label(f"N{i+1}  {s}", font_size=12, align=pygame_menu.locals.ALIGN_LEFT)
+        for i, (initials, s) in enumerate(scores[:5]):
+            menu.add.label(f"N{i+1}  {initials}: {s}", font_size=12, align=pygame_menu.locals.ALIGN_LEFT)
         menu.add.vertical_margin(20)
 
     def crear_botones(texto, accion, color_fondo, color_texto):
@@ -296,7 +302,6 @@ def main():
         boton.set_padding((10, 20, 10, 20))
         boton.set_max_width(300)
         boton.set_background_color(color_fondo)
-
 
 
     menu_theme.widget_font_size = 25  # Tamaño base para todos los widgets
