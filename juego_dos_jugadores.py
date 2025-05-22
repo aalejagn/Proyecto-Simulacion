@@ -176,6 +176,8 @@ def game_loop_2p(surface, store_manager, music_manager, skin1, skin2):
             if current_scores and len(current_scores) >= TOP_SCORES and final_score <= current_scores[-1][1]:
                 # Si la puntuación no entra en el top 5, no pedimos iniciales
                 show_game_over_menu(surface, score1, score2, music_manager, skin1, skin2, store_manager)
+            elif current_level == "":
+                show_game_over_menu(surface, score1, score2, music_manager, skin1, skin2, store_manager)
             else:
                 # Si la puntuación entra en el top 5, pedimos iniciales
                 show_initials_input_menu(surface, final_score, music_manager, lambda: show_game_over_menu(surface, score1, score2, music_manager, skin1, skin2, store_manager))
