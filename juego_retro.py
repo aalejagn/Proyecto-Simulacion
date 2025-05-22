@@ -345,6 +345,8 @@ def main():
         -65  # Posición Y (20px desde abajo)
     )
     
+    
+    
     # Skins (esquina)
     skin_btn = menu.add.button(
         """Skins""",
