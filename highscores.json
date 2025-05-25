@@ -1,1 +1,22 @@
-[{"initials": "PEN", "score": 487942}, {"initials": "JJJ", "score": 345}, {"initials": "DDD", "score": 50}, {"initials": "EEE", "score": 45}, {"initials": "EEE", "score": 40}]
+[
+    {
+        "initials": "AAA",
+        "score": 349
+    },
+    {
+        "initials": "AAA",
+        "score": 304
+    },
+    {
+        "initials": "YYY",
+        "score": 190
+    },
+    {
+        "initials": "EEE",
+        "score": 145
+    },
+    {
+        "initials": "RRR",
+        "score": 100
+    }
+]
