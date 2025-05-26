@@ -2,84 +2,49 @@ import pygame
 import os
 
 class ManejoMusica:
-    def __init__(self, music_folder="CANCIONES"):
-        """
-        Inicializa el gestor de música y sonidos.
-        Args:
-            music_folder (str): Carpeta donde están las canciones y sonidos.
-        """
-        self.musica_folder = music_folder
-        self.pista_actual = None
-        self._asegurar_folder()
-        pygame.mixer.init()  # Arranca el sistema de audio de Pygame
-        pygame.mixer.set_num_channels(8)  # Soporte para múltiples efectos simultáneos
+    def __init__(self):
+        pygame.mixer.init()
+        self.current_music = None
+        self.sounds = {}
 
-    def _asegurar_folder(self):
-        """Crea la carpeta CANCIONES si no existe."""
-        if not os.path.isdir(self.musica_folder):
-            os.makedirs(self.musica_folder)
-
-    def cargar_musica(self, nombre_pista):
-        """
-        Carga una canción desde la carpeta CANCIONES.
-        Args:
-            nombre_pista (str): Nombre del archivo (ej. 'menu_music.mp3').
-        Returns:
-            bool: True si se cargó bien, False si hubo error.
-        """
-        paquete_pista = os.path.join(self.musica_folder, nombre_pista)
+    def play_game(self, music_file):
+        """Play background music."""
         try:
-            if not os.path.exists(paquete_pista):
-                raise FileNotFoundError(f"No se encontró la canción: {paquete_pista}")
-            pygame.mixer.music.load(paquete_pista)
-            self.pista_actual = nombre_pista
-            return True
+            if self.current_music != music_file:
+                pygame.mixer.music.stop()
+                music_path = os.path.join('CANCIONES', music_file)  # Adjust path as needed
+                pygame.mixer.music.load(music_path)
+                pygame.mixer.music.play(-1)  # Loop indefinitely
+                self.current_music = music_file
         except Exception as e:
-            print(f"Error al cargar {nombre_pista}: {e}")
-            return False
+            print(f"Error playing music {music_file}: {e}")
 
-    def play_game(self, nombre_pista, loops=-1):
-        """
-        Toca una canción.
-        Args:
-            nombre_pista (str): Nombre del archivo.
-            loops (int): Cuántas veces repetir (-1 para infinito).
-        """
-        if self.pista_actual != nombre_pista:
-            self.stop_music()
-            if self.cargar_musica(nombre_pista):
-                pygame.mixer.music.play(loops=loops)
-
-    def play_sound(self, sound_name):
-        """
-        Reproduce un efecto de sonido.
-        Args:
-            sound_name (str): Nombre del archivo (ej. 'explosion_sound.mp3').
-        Returns:
-            bool: True si se reprodujo, False si hubo error.
-        """
-        sound_path = os.path.join(self.musica_folder, sound_name)
+    def play_sound(self, sound_file, loop=False):
+        """Play a sound effect, with optional looping."""
         try:
-            if not os.path.exists(sound_path):
-                raise FileNotFoundError(f"No encontré el sonido: {sound_path}")
-            sound = pygame.mixer.Sound(sound_path)
-            sound.set_volume(1.0)  # Volumen máximo
-            channel = pygame.mixer.find_channel()  # Busca un canal libre
-            if channel is None:
-                print(f"No hay canales libres para reproducir {sound_name}")
-                return False
-            channel.play(sound, loops=0)  # Reproduce una vez
-            return True
+            if sound_file not in self.sounds:
+                sound_path = os.path.join('CANCIONES', sound_file)  # Adjust path as needed
+                self.sounds[sound_file] = pygame.mixer.Sound(sound_path)
+            sound = self.sounds[sound_file]
+            if loop:
+                sound.play(loops=-1)  # Loop indefinitely
+            else:
+                sound.play()
         except Exception as e:
-            print(f"Error al reproducir {sound_name}: {e}")
-            return False
+            print(f"Error playing sound {sound_file}: {e}")
 
-    def stop_music(self):
-        """Para la música que está sonando."""
-        pygame.mixer.music.stop()
-        self.pista_actual = None
+    def stop_sound(self, sound_file):
+        """Stop a specific sound effect."""
+        try:
+            if sound_file in self.sounds:
+                self.sounds[sound_file].stop()
+        except Exception as e:
+            print(f"Error stopping sound {sound_file}: {e}")
 
     def limpieza(self):
-        """Limpia los recursos de audio al cerrar el juego."""
-        self.stop_music()
-        pygame.mixer.quit()
+        """Clean up music and sounds."""
+        pygame.mixer.music.stop()
+        for sound in self.sounds.values():
+            sound.stop()
+        self.sounds.clear()
+        self.current_music = None

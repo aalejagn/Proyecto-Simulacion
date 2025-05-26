@@ -1,5 +1,5 @@
 {
-    "points": 13073,
+    "points": 17067,
     "skins": [
         [
             1,
@@ -34,7 +34,7 @@
             "skin_store5.png",
             "skin_store5.png",
             500,
-            true
+            false
         ]
     ]
 }
